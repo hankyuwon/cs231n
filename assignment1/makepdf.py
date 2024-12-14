@@ -10,7 +10,6 @@ except ImportError:
     print("Could not find PyPDF2. Leaving pdf files unmerged.")
     MERGE = False
 
-
 def main(files, pdf_name):
     os_args = [
         "jupyter",

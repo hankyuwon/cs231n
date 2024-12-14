@@ -55,7 +55,10 @@ class TwoLayerNet(object):
         ############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-        pass
+        self.params['W1'] = np.random.normal(loc = 0.0, scale = weight_scale, size = (input_dim, hidden_dim))
+        self.params['b1'] = np.zeros(hidden_dim)
+        self.params['W2'] = np.random.normal(loc = 0.0, scale = weight_scale, size = (hidden_dim, num_classes))
+        self.params['b2'] = np.zeros(num_classes)
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         ############################################################################
@@ -88,7 +91,13 @@ class TwoLayerNet(object):
         ############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-        pass
+        X = X.reshape(X.shape[0], -1)
+        
+        first_layer_z = X.dot(self.params['W1']) + self.params['b1']
+        first_layer_h = np.maximum(first_layer_z, 0)
+        second_layer_z = first_layer_h.dot(self.params['W2']) + self.params['b2']
+        
+        scores = second_layer_z
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         ############################################################################
@@ -112,7 +121,24 @@ class TwoLayerNet(object):
         ############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-        pass
+        # loss
+        _softmax_score = np.exp(scores)
+        _softmax = _softmax_score / np.sum(_softmax_score, axis=1).reshape(X.shape[0],1)
+
+        loss += np.sum(-np.log(_softmax[range(X.shape[0]), y]))
+        loss /= X.shape[0]
+
+        loss += 0.5 * self.reg * (np.sum(self.params['W1']**2) + np.sum(self.params['W2']**2))
+
+        # gradient
+        dout = _softmax
+        dout[range(X.shape[0]), y] -= 1
+        dsecond_layer_z = np.dot(dout, self.params['W2'].T)
+
+        grads['W2'] = np.dot(first_layer_h.T, dout) / X.shape[0] + self.reg * self.params['W2']
+        grads['b2'] = np.sum(dout, axis=0) / X.shape[0]
+        grads['W1'] = np.dot(X.T, dsecond_layer_z) / X.shape[0] + self.reg * self.params['W1']
+        grads['b1'] = np.sum(dsecond_layer_z, axis=0) / X.shape[0]
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         ############################################################################
