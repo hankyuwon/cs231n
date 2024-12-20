@@ -1,0 +1,5 @@
+github_cs231n_commit.ipynb
+
+*.c
+*.pyx
+*.so
